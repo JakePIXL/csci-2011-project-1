@@ -32,20 +32,20 @@ This project implements a basic library management system that allows librarians
 The application uses a PostgreSQL database with the following structure:
 
 ### Books Table
-- `book_id` (Primary Key)
+- `id` (Primary Key)
 - `title`
 - `author`
 - `category`
 - `status`
 
 ### Members Table
-- `member_id` (Primary Key)
+- `id` (Primary Key)
 - `name`
 - `email`
 - `phone`
 
 ### Borrowings Table
-- `borrow_id` (Primary Key)
+- `id` (Primary Key)
 - `book_id` (Foreign Key)
 - `member_id` (Foreign Key)
 - `borrow_date`
