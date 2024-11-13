@@ -90,7 +90,7 @@ erDiagram
     MEMBERS ||--o{ BORROWINGS : makes
 
     BOOKS {
-        int book_id PK
+        int id PK
         string title
         string author
         string category
@@ -98,14 +98,14 @@ erDiagram
     }
 
     MEMBERS {
-        int member_id PK
+        int id PK
         string name
         string email
         string phone
     }
 
     BORROWINGS {
-        int borrow_id PK
+        int id PK
         int book_id FK
         int member_id FK
         date borrow_date
