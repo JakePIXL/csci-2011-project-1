@@ -29,7 +29,7 @@ This project implements a basic library management system that allows librarians
 
 ## Database Schema
 
-The application uses a PostgreSQL database with the following structure:
+The application uses a MariaDB database with the following structure:
 
 ### Books Table
 - `id` (Primary Key)
