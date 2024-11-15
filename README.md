@@ -29,23 +29,23 @@ This project implements a basic library management system that allows librarians
 
 ## Database Schema
 
-The application uses a PostgreSQL database with the following structure:
+The application uses a MariaDB database with the following structure:
 
 ### Books Table
-- `book_id` (Primary Key)
+- `id` (Primary Key)
 - `title`
 - `author`
 - `category`
 - `status`
 
 ### Members Table
-- `member_id` (Primary Key)
+- `id` (Primary Key)
 - `name`
 - `email`
 - `phone`
 
 ### Borrowings Table
-- `borrow_id` (Primary Key)
+- `id` (Primary Key)
 - `book_id` (Foreign Key)
 - `member_id` (Foreign Key)
 - `borrow_date`
@@ -90,7 +90,7 @@ erDiagram
     MEMBERS ||--o{ BORROWINGS : makes
 
     BOOKS {
-        int book_id PK
+        int id PK
         string title
         string author
         string category
@@ -98,14 +98,14 @@ erDiagram
     }
 
     MEMBERS {
-        int member_id PK
+        int id PK
         string name
         string email
         string phone
     }
 
     BORROWINGS {
-        int borrow_id PK
+        int id PK
         int book_id FK
         int member_id FK
         date borrow_date
