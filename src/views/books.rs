@@ -3,6 +3,8 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
+use super::Order;
+
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Book {
     pub id: i32,
@@ -65,55 +67,13 @@ impl From<Option<String>> for BookStatus {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub enum BookOrder {
-    Asc,
-    Desc,
-}
-
-impl BookOrder {
-    pub fn as_str(&self) -> &str {
-        match self {
-            BookOrder::Asc => "ASC",
-            BookOrder::Desc => "DESC",
-        }
-    }
-}
-
-impl fmt::Display for BookOrder {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
-
-impl std::str::FromStr for BookOrder {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "asc" => Ok(BookOrder::Asc),
-            "desc" => Ok(BookOrder::Desc),
-            _ => Err(format!("Unknown order: {}", s)),
-        }
-    }
-}
-
-impl From<Option<String>> for BookOrder {
-    fn from(opt: Option<String>) -> Self {
-        match opt {
-            Some(s) => s.parse().unwrap_or(BookOrder::Asc),
-            None => BookOrder::Asc,
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct SearchParams {
     pub title: Option<String>,
     pub author: Option<String>,
     pub category: Option<String>,
     pub status: Option<BookStatus>,
-    pub order: Option<BookOrder>,
+    pub order: Option<Order>,
     pub order_by: Option<String>,
     pub limit: Option<u32>,
     pub page: Option<u32>,
@@ -137,9 +97,9 @@ impl SearchParams {
         }
     }
 
-    pub fn get_order(&self) -> BookOrder {
+    pub fn get_order(&self) -> Order {
         if self.order.is_none() {
-            BookOrder::Asc
+            Order::Asc
         } else {
             self.order.clone().unwrap()
         }

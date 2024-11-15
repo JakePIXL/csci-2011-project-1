@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
-use super::books::BookOrder;
+use super::Order;
 
 // Member structs
 #[derive(Serialize, Deserialize, FromRow)]
@@ -74,7 +74,7 @@ pub struct BorrowingSearchParams {
     pub status: Option<BorrowingStatus>,
     pub from_date: Option<NaiveDate>,
     pub to_date: Option<NaiveDate>,
-    pub order: Option<BookOrder>, // Reusing BookOrder from your example
+    pub order: Option<Order>, // Reusing BookOrder from your example
     pub order_by: Option<String>,
     pub limit: Option<u32>,
     pub page: Option<u32>,
@@ -99,8 +99,8 @@ impl BorrowingSearchParams {
         }
     }
 
-    pub fn get_order(&self) -> BookOrder {
-        self.order.clone().unwrap_or(BookOrder::Asc)
+    pub fn get_order(&self) -> Order {
+        self.order.clone().unwrap_or(Order::Asc)
     }
 }
 
@@ -108,7 +108,8 @@ impl BorrowingSearchParams {
 pub struct MemberSearchParams {
     pub name: Option<String>,
     pub email: Option<String>,
-    pub order: Option<BookOrder>, // Reusing BookOrder from your example
+    pub phone: Option<String>,
+    pub order: Option<Order>, // Reusing BookOrder from your example
     pub order_by: Option<String>,
     pub limit: Option<u32>,
     pub page: Option<u32>,
@@ -132,7 +133,7 @@ impl MemberSearchParams {
         }
     }
 
-    pub fn get_order(&self) -> BookOrder {
-        self.order.clone().unwrap_or(BookOrder::Asc)
+    pub fn get_order(&self) -> Order {
+        self.order.clone().unwrap_or(Order::Asc)
     }
 }
