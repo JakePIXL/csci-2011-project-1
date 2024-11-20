@@ -1,9 +1,7 @@
-use std::fmt;
-
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
-use super::Order;
+use super::{Order, Status};
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Book {
@@ -11,7 +9,7 @@ pub struct Book {
     pub title: String,
     pub author: String,
     pub category: Option<String>,
-    pub status: BookStatus,
+    pub status: Status,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -26,45 +24,7 @@ pub struct UpdateBook {
     pub title: Option<String>,
     pub author: Option<String>,
     pub category: Option<String>,
-    pub status: Option<BookStatus>,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub enum BookStatus {
-    Available,
-    Borrowed,
-    All,
-}
-
-impl BookStatus {
-    pub fn as_str(&self) -> Option<&str> {
-        match self {
-            BookStatus::Available => Some("available"),
-            BookStatus::Borrowed => Some("borrowed"),
-            BookStatus::All => None,
-        }
-    }
-}
-
-impl std::str::FromStr for BookStatus {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "available" => Ok(BookStatus::Available),
-            "borrowed" => Ok(BookStatus::Borrowed),
-            _ => Err(format!("Unknown status: {}", s)),
-        }
-    }
-}
-
-impl From<Option<String>> for BookStatus {
-    fn from(opt: Option<String>) -> Self {
-        match opt {
-            Some(s) => s.parse().unwrap_or(BookStatus::Available),
-            None => BookStatus::Available,
-        }
-    }
+    pub status: Option<Status>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -72,7 +32,7 @@ pub struct SearchParams {
     pub title: Option<String>,
     pub author: Option<String>,
     pub category: Option<String>,
-    pub status: Option<BookStatus>,
+    pub status: Option<Status>,
     pub order: Option<Order>,
     pub order_by: Option<String>,
     pub limit: Option<u32>,
@@ -99,13 +59,13 @@ impl SearchParams {
 
     pub fn get_order(&self) -> Order {
         if self.order.is_none() {
-            Order::Asc
+            Order::ASC
         } else {
             self.order.clone().unwrap()
         }
     }
 
-    pub fn get_status(&self) -> BookStatus {
-        self.status.clone().unwrap_or(BookStatus::All)
+    pub fn get_status(&self) -> Status {
+        self.status.clone().unwrap_or(Status::All)
     }
 }

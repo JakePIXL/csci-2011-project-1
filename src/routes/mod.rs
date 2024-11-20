@@ -1,4 +1,5 @@
 pub mod books;
+pub mod borrowings;
 pub mod members;
 
 use actix_web::{get, web, HttpResponse, Responder};
