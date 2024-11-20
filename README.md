@@ -51,6 +51,15 @@ The application uses a MariaDB database with the following structure:
 - `borrow_date`
 - `return_date`
 
+### Borrowings View
+- `id`
+- `book_id`
+- `book_title`
+- `borrower`
+- `borrower_id`
+- `borrow_date`
+- `return_date`
+
 ## Technologies Used
 
 - Rust
@@ -62,25 +71,29 @@ The application uses a MariaDB database with the following structure:
 ## API Endpoints
 
 ### Books
-- `GET /books` - List all books
-- `GET /books/{id}` - Get book details
+- `GET /books` - List all books with filtering options
+  - Query parameters: `title`, `author`, `category`, `status`, `order_by`, `order`, `limit`, `page`
+- `GET /books/{id}` - Get book details by ID
 - `POST /books` - Add a new book
 - `PUT /books/{id}` - Update book information
 - `DELETE /books/{id}` - Delete a book
 
 ### Members
-- `GET /members` - List all members
-- `GET /members/{id}` - Get member details
+- `GET /members` - List all members with filtering options
+  - Query parameters: `name`, `email`, `phone`, `order_by`, `order`, `limit`, `page`
+- `GET /members/{id}` - Get member details by ID
 - `POST /members` - Register a new member
 - `PUT /members/{id}` - Update member information
 - `DELETE /members/{id}` - Remove a member
 
 ### Borrowings
-- `GET /borrowings` - List all borrowings
-- `GET /borrowings/{id}` - Get borrowing details
-- `POST /borrowings` - Create a new borrowing record
-- `PUT /borrowings/{id}` - Update borrowing information
-- `DELETE /borrowings/{id}` - Delete a borrowing record
+- `GET /borrows` - List all borrowings with filtering options
+  - Query parameters: `status`, `order`
+- `GET /borrows/{id}` - Get borrowing details by member ID
+  - Query parameters: `status`, `order`
+- `POST /borrows/{id}` - Create a new borrowing for a member
+- `POST /borrows/return` - Return a borrowed book
+- `DELETE /borrows/{id}` - Delete a borrowing record (By Borrowing ID)
 
 ## ER Diagram
 

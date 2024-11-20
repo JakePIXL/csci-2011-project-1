@@ -2,7 +2,7 @@ use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use env_logger::Env;
 use tracing::info;
 
-use csci211_project::routes::{books, health_check, members};
+use csci211_project::routes::{books, borrowings, health_check, members};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -28,6 +28,7 @@ async fn main() -> std::io::Result<()> {
             .service(health_check)
             .configure(books::books_config)
             .configure(members::members_config)
+            .configure(borrowings::borrowings_config)
     })
     .bind(address)?
     .run()
