@@ -59,6 +59,7 @@ The application uses a MariaDB database with the following structure:
 - `borrower_id`
 - `borrow_date`
 - `return_date`
+- `status
 
 ## Technologies Used
 
@@ -67,33 +68,34 @@ The application uses a MariaDB database with the following structure:
 - SQLx (Database Library)
 - MariaDB (Database)
 - Serde (Serialization)
+- Svelte/Kit (Frontend)
 
 ## API Endpoints
 
 ### Books
-- `GET /books` - List all books with filtering options
+- `GET /api/books` - List all books with filtering options
   - Query parameters: `title`, `author`, `category`, `status`, `order_by`, `order`, `limit`, `page`
-- `GET /books/{id}` - Get book details by ID
-- `POST /books` - Add a new book
-- `PUT /books/{id}` - Update book information
-- `DELETE /books/{id}` - Delete a book
+- `GET /api/books/{id}` - Get book details by ID
+- `POST /api/books` - Add a new book
+- `PUT /api/books/{id}` - Update book information
+- `DELETE /api/books/{id}` - Delete a book
 
 ### Members
-- `GET /members` - List all members with filtering options
+- `GET /api/members` - List all members with filtering options
   - Query parameters: `name`, `email`, `phone`, `order_by`, `order`, `limit`, `page`
-- `GET /members/{id}` - Get member details by ID
-- `POST /members` - Register a new member
-- `PUT /members/{id}` - Update member information
-- `DELETE /members/{id}` - Remove a member
+- `GET /api/members/{id}` - Get member details by ID
+- `POST /api/members` - Register a new member
+- `PUT /api/members/{id}` - Update member information
+- `DELETE /api/members/{id}` - Remove a member
 
 ### Borrowings
-- `GET /borrows` - List all borrowings with filtering options
+- `GET /api/borrows` - List all borrowings with filtering options
   - Query parameters: `status`, `order`
-- `GET /borrows/{id}` - Get borrowing details by member ID
+- `GET /api/borrows/{id}` - Get borrowing details by member ID
   - Query parameters: `status`, `order`
-- `POST /borrows/{id}` - Create a new borrowing for a member
-- `POST /borrows/return/` - Return a borrowed book
-- `DELETE /borrows/{id}` - Delete a borrowing record (By Borrowing ID)
+- `POST /api/borrows/{id}` - Create a new borrowing for a member
+- `POST /api/borrows/return/` - Return a borrowed book
+- `DELETE /api/borrows/{id}` - Delete a borrowing record (By Borrowing ID)
 
 ## ER Diagram
 
