@@ -11,7 +11,7 @@ use crate::views::{
 pub fn borrowings_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/borrows")
-            .service(borrow_books)
+            .service(new_borrowing)
             .service(return_books)
             .service(get_borrows_by_id)
             .service(get_all_borrowings),
@@ -19,7 +19,7 @@ pub fn borrowings_config(cfg: &mut web::ServiceConfig) {
 }
 
 #[post("/{id}")]
-async fn borrow_books(
+async fn new_borrowing(
     id: web::Path<i32>,
     data: web::Json<BorrowRequest>,
     pool: web::Data<sqlx::MySqlPool>,
@@ -40,12 +40,11 @@ async fn borrow_books(
         r#"SELECT id, title, author, category, status FROM BOOKS WHERE id = ? AND status = 'available'"#,
         id
     )
-    .fetch_optional(pool.get_ref())
+    .fetch_one(pool.get_ref())
     .await
     {
-        Ok(Some(_)) => {}
-        Ok(None) => return HttpResponse::NotFound().json("Book not found or not available"),
-        Err(_) => return HttpResponse::InternalServerError().finish(),
+        Ok(_) => {},
+        Err(_) => return HttpResponse::NotFound().json("Book not found or not available"),
     };
 
     // Check if book is already borrowed by the member (just in case)
@@ -154,21 +153,23 @@ async fn return_books(
         Err(_) => return HttpResponse::NotFound().finish(),
     };
 
+    tracing::info!("Book: {:?}", json!(book));
+
     if book.status.as_str() != "borrowed" {
-        return HttpResponse::BadRequest().json(json!({"message": "Book is not borrowed"}));
+        return HttpResponse::BadRequest().json(json!("Book is not borrowed"));
     }
 
     let borrowed = match sqlx::query!(
         r#"
         SELECT id, book_id, member_id, borrow_date, return_date FROM BORROWINGS WHERE book_id = ? AND return_date IS NULL
         "#,
-        data.book_id
+        book.id
     )
     .fetch_one(pool.get_ref())
     .await
     {
         Ok(borrowed) => borrowed,
-        Err(_) => return HttpResponse::NotFound().json(json!({"message": "Book is not borrowed"})),
+        Err(_) => return HttpResponse::NotFound().json(json!("Book is not borrowed")),
     };
 
     match sqlx::query!(
@@ -177,7 +178,7 @@ async fn return_books(
             SET status = 'available'
             WHERE id = ?
         "#,
-        data.book_id
+        book.id
     )
     .execute(pool.get_ref())
     .await
@@ -193,12 +194,12 @@ async fn return_books(
             WHERE id = ?
         "#,
         Utc::now(),
-        borrowed.member_id
+        borrowed.id
     )
     .execute(pool.get_ref())
     .await
     {
-        Ok(_) => HttpResponse::Ok().json(json!({"message": "Books returned"})),
+        Ok(_) => HttpResponse::Ok().json(json!("Books returned")),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
@@ -209,14 +210,13 @@ async fn get_all_borrowings(
     pool: web::Data<sqlx::MySqlPool>,
 ) -> impl Responder {
     let status = params.get_status();
-    let status_value = status.as_str();
+    let status_value = status.as_borrowing_str();
 
     let q = format!(
         r#"
         SELECT id, title, author, borrower, borrower_id, borrow_date, return_date, status
         FROM BORROWED_BOOKS
         WHERE (CASE
-            WHEN ? IS NULL THEN TRUE
             WHEN ? = 'all' THEN TRUE
             ELSE status = ?
             END)
@@ -228,12 +228,14 @@ async fn get_all_borrowings(
     let results: Vec<BorrowedBook> = match sqlx::query_as(&q)
         .bind(status_value)
         .bind(status_value)
-        .bind(status_value)
         .fetch_all(pool.get_ref())
         .await
     {
         Ok(results) => results,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
+        Err(e) => {
+            tracing::warn!("Error: {:?}", e);
+            return HttpResponse::InternalServerError().finish();
+        }
     };
 
     HttpResponse::Ok().json(json!(results))
@@ -286,7 +288,7 @@ async fn delete_borrowing(id: web::Path<i32>, pool: web::Data<sqlx::MySqlPool>) 
     .execute(pool.get_ref())
     .await
     {
-        Ok(_) => HttpResponse::Ok().json(json!({"message": "Borrowing deleted"})),
+        Ok(_) => HttpResponse::Ok().json(json!("Borrowing deleted")),
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }

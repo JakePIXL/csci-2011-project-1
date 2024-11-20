@@ -7,28 +7,32 @@ use super::Order;
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Member {
     pub id: i32,
-    pub name: String,
+    pub first_name: String,
+    pub last_name: String,
     pub email: String,
     pub phone: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct NewMember {
-    pub name: String,
+    pub first_name: String,
+    pub last_name: String,
     pub email: String,
     pub phone: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdateMember {
-    pub name: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub email: Option<String>,
     pub phone: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MemberSearchParams {
-    pub name: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
     pub email: Option<String>,
     pub phone: Option<String>,
     pub order: Option<Order>, // Reusing BookOrder from your example
@@ -47,7 +51,7 @@ impl MemberSearchParams {
     }
 
     pub fn get_order_by(&self) -> String {
-        const ALLOWED_COLUMNS: [&str; 4] = ["id", "name", "email", "phone"];
+        const ALLOWED_COLUMNS: [&str; 5] = ["id", "first_name", "last_name", "email", "phone"];
 
         match &self.order_by {
             Some(column) if ALLOWED_COLUMNS.contains(&column.as_str()) => column.clone(),

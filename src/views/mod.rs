@@ -75,6 +75,14 @@ impl Status {
         }
     }
 
+    pub fn as_borrowing_str(&self) -> &str {
+        match self {
+            Status::Available => "returned",
+            Status::Borrowed => "borrowed",
+            Status::All => "all",
+        }
+    }
+
     pub fn as_str(&self) -> &str {
         match self {
             Status::Available => "available",
@@ -95,6 +103,7 @@ impl std::str::FromStr for Status {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
+            "returned" => Ok(Status::Available),
             "available" => Ok(Status::Available),
             "borrowed" => Ok(Status::Borrowed),
             _ => Err(format!("Unknown status: {}", s)),
