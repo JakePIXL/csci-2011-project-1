@@ -27,9 +27,13 @@ async fn new_borrowing(
     let id = id.into_inner();
 
     // Check if member exists
-    let member = match sqlx::query_as!(Member, r#"SELECT * FROM MEMBERS WHERE id = ?"#, id)
-        .fetch_one(pool.get_ref())
-        .await
+    let member = match sqlx::query_as!(
+        Member,
+        r#"SELECT id, first_name, last_name, email, phone FROM MEMBERS WHERE id = ?"#,
+        id
+    )
+    .fetch_one(pool.get_ref())
+    .await
     {
         Ok(member) => member,
         Err(_) => return HttpResponse::NotFound().json("Member not found"),
