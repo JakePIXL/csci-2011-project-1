@@ -92,7 +92,7 @@ The application uses a MariaDB database with the following structure:
 - `GET /borrows/{id}` - Get borrowing details by member ID
   - Query parameters: `status`, `order`
 - `POST /borrows/{id}` - Create a new borrowing for a member
-- `POST /borrows/return` - Return a borrowed book
+- `POST /borrows/return/` - Return a borrowed book
 - `DELETE /borrows/{id}` - Delete a borrowing record (By Borrowing ID)
 
 ## ER Diagram
