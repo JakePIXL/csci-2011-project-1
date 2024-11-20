@@ -127,3 +127,17 @@ erDiagram
         date return_date
     }
 ```
+
+## Usage
+
+To run the program simply run the binary that was generated:
+
+```bash
+./projectone
+```
+
+You may need to change the connection string in the .env file to match your database configuration.
+
+```text
+DATABASE_URL=mariadb://username:password@localhost/library
+```
