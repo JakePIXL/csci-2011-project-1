@@ -1,19 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import { goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 	let selectedBook: any = $state(null);
 	let selectedBookDetails: string = $state('');
-	// Handle book selection
+
 	function handleBookSelect(event: Event) {
 		const select = event.target as HTMLSelectElement;
 		selectedBook = data.books.find((book) => book.id === parseInt(select.value));
 		selectedBookDetails = selectedBook ? JSON.stringify(selectedBook, null, 2) : '';
 	}
 
-	// Handle form submission
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 
@@ -31,7 +30,7 @@
 			});
 
 			if (response.ok) {
-				goto(`/members/${data.member.id}`);
+				invalidateAll();
 			} else {
 				alert('Failed to checkout book');
 			}

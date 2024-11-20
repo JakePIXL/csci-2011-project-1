@@ -8,7 +8,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('/api/members/');
+			const response = await fetch('/api/members/?limit=300');
 			members = await response.json();
 		} catch (e) {
 			error = 'Failed to load members';

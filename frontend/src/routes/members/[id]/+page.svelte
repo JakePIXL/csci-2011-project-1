@@ -1,14 +1,53 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { invalidateAll, goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 
-	function deleteMember() {
-		fetch(`/api/members/${data.member.id}`, {
-			method: 'DELETE'
-		}).then(() => {
-			window.location.href = '/';
-		});
+	let editedMember = {
+		first_name: data.member.first_name,
+		last_name: data.member.last_name,
+		email: data.member.email,
+		phone: data.member.phone || ''
+	};
+
+	async function updateMember() {
+		try {
+			const response = await fetch(`/api/members/${data.member.id}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(editedMember)
+			});
+
+			if (response.ok) {
+				const updatedMember = await response.json();
+				data.member = updatedMember;
+
+				goto('/members');
+			} else {
+				console.log('Failed to update member');
+			}
+		} catch {
+			console.log('Failed to update member');
+		}
+	}
+
+	async function deleteMember() {
+		try {
+			const response = await fetch(`/api/members/${data.member.id}`, {
+				method: 'DELETE'
+			});
+
+			if (response.ok) {
+				goto('/members');
+			} else {
+				console.log('Failed to delete member');
+			}
+		} catch {
+			console.log('Failed to delete member');
+		}
 	}
 </script>
 
@@ -42,20 +81,50 @@
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 				<div>
 					<h2 class="text-xl font-semibold text-gray-800">Personal Information</h2>
-					<div class="mt-4 space-y-4">
+					<form onsubmit={updateMember} class="mt-4 space-y-4">
 						<div>
-							<label class="text-sm font-medium text-gray-600">Name</label>
-							<p class="text-gray-800">{data.member.name}</p>
+							<label class="text-sm font-medium text-gray-600" for="first_name">First Name</label>
+							<input
+								type="text"
+								id="first_name"
+								bind:value={editedMember.first_name}
+								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+							/>
 						</div>
 						<div>
-							<label class="text-sm font-medium text-gray-600">Email</label>
-							<p class="text-gray-800">{data.member.email}</p>
+							<label class="text-sm font-medium text-gray-600" for="last_name">Last Name</label>
+							<input
+								type="text"
+								id="last_name"
+								bind:value={editedMember.last_name}
+								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+							/>
 						</div>
 						<div>
-							<label class="text-sm font-medium text-gray-600">Phone</label>
-							<p class="text-gray-800">{data.member.phone || 'Not provided'}</p>
+							<label class="text-sm font-medium text-gray-600" for="email">Email</label>
+							<input
+								type="email"
+								id="email"
+								bind:value={editedMember.email}
+								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+							/>
 						</div>
-					</div>
+						<div>
+							<label class="text-sm font-medium text-gray-600" for="phone">Phone</label>
+							<input
+								type="tel"
+								id="phone"
+								bind:value={editedMember.phone}
+								class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+							/>
+						</div>
+						<button
+							type="submit"
+							class="mt-4 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+						>
+							Update Information
+						</button>
+					</form>
 				</div>
 			</div>
 		</div>

@@ -29,6 +29,7 @@ SELECT
     b.id,
     b.title,
     b.author,
+    -- Simply concatenating the first and last name of the member -\(o-o)/-
     CONCAT(m.first_name, " ", m.last_name) AS borrower,
     m.id AS borrower_id,
     br.borrow_date,

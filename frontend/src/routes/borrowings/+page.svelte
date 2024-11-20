@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import type { BorrowedBook } from '$lib/views';
 	import { onMount } from 'svelte';
 
@@ -9,7 +9,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('/api/borrows/');
+			const response = await fetch('/api/borrows/?limit=300');
 			borrowings = await response.json();
 		} catch (e) {
 			error = 'Failed to load borrowings';
@@ -18,16 +18,24 @@
 		}
 	});
 
-	function returnBook(id: Number) {
-		fetch(`/api/borrows/return/`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ book_id: id })
-		}).then(() => {
-			goto('/borrowings');
-		});
+	async function returnBook(id: Number) {
+		try {
+			const response = await fetch(`/api/borrows/return/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ book_id: id })
+			});
+
+			if (response.ok) {
+				invalidateAll();
+			} else {
+				console.log('Failed to return book');
+			}
+		} catch {
+			console.log('Failed to return book');
+		}
 	}
 </script>
 
@@ -40,9 +48,9 @@
 			>
 			<h1 class="text-2xl font-bold">Borrowings</h1>
 		</div>
-		<a href="/borrowings/new" class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+		<!-- <a href="/borrowings/new" class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
 			New Borrowing
-		</a>
+		</a> -->
 	</div>
 
 	{#if loading}
@@ -103,7 +111,7 @@
 									class:bg-green-100={borrowing.return_date}
 									class:text-green-800={borrowing.return_date}
 								>
-									{borrowing.return_date ? 'Returned' : 'Borrowed'}
+									{borrowing.return_date ? 'returned' : 'borrowed'}
 								</span>
 							</td>
 							<td class="whitespace-nowrap px-6 py-4">

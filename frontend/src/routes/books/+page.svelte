@@ -9,7 +9,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('/api/books/');
+			const response = await fetch('/api/books/?limit=300');
 			books = await response.json();
 		} catch (e) {
 			error = 'Failed to load books';
