@@ -33,7 +33,7 @@ pub struct BorrowingSearchParams {
     pub status: Option<Status>,
     pub from_date: Option<NaiveDate>,
     pub to_date: Option<NaiveDate>,
-    pub order: Option<Order>, // Reusing BookOrder from your example
+    pub order: Option<Order>,
     pub order_by: Option<String>,
     pub limit: Option<u32>,
     pub page: Option<u32>,

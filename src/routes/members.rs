@@ -20,7 +20,9 @@ pub async fn get_members(
     pool: web::Data<sqlx::MySqlPool>,
 ) -> impl Responder {
     let order_by = match query.get_order_by().as_str() {
-        "id" | "name" | "email" | "phone" | "status" | "created_at" => query.get_order_by(),
+        "id" | "first_name" | "last_name" | "email" | "phone" | "status" | "created_at" => {
+            query.get_order_by()
+        }
         _ => "id".to_string(),
     };
 
@@ -30,16 +32,18 @@ pub async fn get_members(
     // processing power.
     let q = format!(
         r#"
-        SELECT id, name, email, phone
+        SELECT id, first_name, last_name, email, phone
         FROM MEMBERS
         WHERE
-            (? IS NULL OR name LIKE CONCAT('%', ?, '%'))
+            (? IS NULL OR first_name LIKE CONCAT('%', ?, '%'))
+            AND (? IS NULL OR last_name LIKE CONCAT('%', ?, '%'))
             AND (? IS NULL OR email LIKE CONCAT('%', ?, '%'))
             AND (? IS NULL OR phone LIKE CONCAT('%', ?, '%'))
         ORDER BY
             CASE
                 WHEN ? = 'id' THEN id
-                WHEN ? = 'name' THEN name
+                WHEN ? = 'first_name' THEN first_name
+                WHEN ? = 'last_name' THEN last_name
                 WHEN ? = 'email' THEN email
                 WHEN ? = 'phone' THEN phone
                 ELSE id
@@ -51,12 +55,15 @@ pub async fn get_members(
     );
 
     let results: Vec<Member> = sqlx::query_as(&q)
-        .bind(query.name.clone())
-        .bind(query.name.clone().unwrap_or("".to_string()))
+        .bind(query.first_name.clone())
+        .bind(query.first_name.clone().unwrap_or("".to_string()))
+        .bind(query.last_name.clone())
+        .bind(query.last_name.clone().unwrap_or("".to_string()))
         .bind(query.email.clone())
         .bind(query.email.clone().unwrap_or("".to_string()))
         .bind(query.phone.clone())
         .bind(query.phone.clone().unwrap_or("".to_string()))
+        .bind(order_by.as_str())
         .bind(order_by.as_str())
         .bind(order_by.as_str())
         .bind(order_by.as_str())
@@ -77,10 +84,11 @@ async fn create_member(
 ) -> impl Responder {
     let result = sqlx::query!(
         r#"
-            INSERT INTO MEMBERS (name, email, phone)
-            VALUES (?, ?, ?)
+            INSERT INTO MEMBERS (first_name, last_name, email, phone)
+            VALUES (?, ?, ?, ?)
         "#,
-        data.name,
+        data.first_name,
+        data.last_name,
         data.email,
         data.phone
     )
@@ -103,7 +111,7 @@ async fn update_member(
     let member = match sqlx::query_as!(
         Member,
         r#"
-            SELECT id, name, email, phone
+            SELECT id, first_name, last_name, email, phone
             FROM MEMBERS
             WHERE id = ?
         "#,
@@ -120,10 +128,11 @@ async fn update_member(
     let result = sqlx::query!(
         r#"
             UPDATE MEMBERS
-            SET name = ?, email = ?, phone = ?
+            SET first_name = ?, last_name = ?, email = ?, phone = ?
             WHERE id = ?
         "#,
-        data.name.clone().unwrap_or(member.name),
+        data.first_name.clone().unwrap_or(member.first_name),
+        data.last_name.clone().unwrap_or(member.last_name),
         data.email.clone().unwrap_or(member.email),
         if data.phone.clone().is_some() {
             data.phone.clone()
@@ -146,7 +155,7 @@ async fn get_by_id(id: web::Path<i32>, pool: web::Data<sqlx::MySqlPool>) -> impl
     match sqlx::query_as!(
         Member,
         r#"
-            SELECT id, name, email, phone
+            SELECT id, first_name, last_name, email, phone
             FROM MEMBERS
             WHERE id = ?
         "#,

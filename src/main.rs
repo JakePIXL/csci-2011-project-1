@@ -1,4 +1,9 @@
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_files as fs;
+use actix_web::{
+    middleware::Logger,
+    web::{self, scope, Data},
+    App, HttpServer, Responder,
+};
 use env_logger::Env;
 use tracing::info;
 
@@ -25,12 +30,23 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(Data::new(pool.clone()))
-            .service(health_check)
-            .configure(books::books_config)
-            .configure(members::members_config)
-            .configure(borrowings::borrowings_config)
+            .service(
+                scope("/api")
+                    .service(health_check)
+                    .configure(books::books_config)
+                    .configure(members::members_config)
+                    .configure(borrowings::borrowings_config),
+            )
+            .service(fs::Files::new("/", "./frontend/build").index_file("index.html"))
+            .default_service(web::route().to(spa_index))
     })
     .bind(address)?
     .run()
     .await
+}
+
+async fn spa_index() -> impl Responder {
+    actix_web::HttpResponse::PermanentRedirect()
+        .append_header(("Location", "/"))
+        .finish()
 }
